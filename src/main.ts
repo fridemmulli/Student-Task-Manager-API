@@ -1,27 +1,21 @@
-// src/main.ts
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import express from 'express';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+const server = express();
 
-  // Aktifkan CORS untuk frontend
-  app.enableCors({
-    origin: 'http://localhost:5173',
-  });
+export const createNestServer = async (expressInstance = server) => {
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(expressInstance));
+  app.enableCors();
+  await app.init();
+  return expressInstance;
+};
 
-  // Swagger setup
-  const config = new DocumentBuilder()
-    .setTitle('Sistem Manajemen Tugas Mahasiswa')
-    .setDescription('API dokumentasi untuk login, register, dan tugas')
-    .setVersion('1.0')
-    .addBearerAuth() // untuk endpoint protected
-    .build();
-
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document); // http://localhost:3000/api
-
-  await app.listen(3000);
+if (!process.env.VERCEL) {
+  createNestServer().then((app) =>
+    app.listen(3000, () => {
+      console.log(`NestJS app running on http://localhost:3000`);
+    }),
+  );
 }
-bootstrap();
