@@ -66,6 +66,11 @@
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
   },
+  "scripts": {
+    "vercel-build": "prisma generate && npm run build",
+    "build": "tsc -p tsconfig.build.json",
+    "start:prod": "node dist/main"
+  },
   "jest": {
     "moduleFileExtensions": [
       "js",
