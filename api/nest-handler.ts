@@ -1,8 +1,11 @@
 import { createNestServer } from '../src/main';
 
-const handler = async (req: any, res: any) => {
-    const app = await createNestServer();
-    app(req, res); // jalankan Express
-};
+let cachedApp: any;
 
-export default handler;
+export default async function handler(req: any, res: any) {
+  if (!cachedApp) {
+    const expressApp = await createNestServer();
+    cachedApp = expressApp;
+  }
+  return cachedApp(req, res);
+}
